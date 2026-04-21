@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Searchbar from "../Components/Searchbar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useFilter } from "../store/useFilter";
 
 const Home = () => {
   return (
@@ -8,7 +9,7 @@ const Home = () => {
       <main className="w-full pt-6 pb-16.25 px-3.5">
         <Searchbar />
 
-        <section className="mt-8 flex flex-col items-center gap-10">
+        <section className="md:flex-row md:flex-wrap md:justify-around mt-8 flex flex-col items-center gap-10">
           <AllCountries />
         </section>
       </main>
@@ -40,7 +41,38 @@ getCountries();
 
 function AllCountries() {
   const [countries, setCountries] = useState([]);
+  const countryName = useFilter((state) => state.countryName)
+ const region = useFilter((state) => state.region)
 
+  // const filteredData = useMemo(() => {
+
+  //   const name = countryName !== "" || region !== ""
+  //   if (name === region){
+  //     return countries.filter((item) => item.region.includes(region))
+  //   }
+  //  else if (name) {
+  //     return countries.filter((item) => item.name.common.toLowerCase().includes(countryName.toLowerCase().trim()))
+  //   }
+  //   return countries
+  // }, [countryName, countries])
+
+  const filteredData = useMemo(() => {
+  return countries.filter((country) => {
+    // 1. Check if the name matches (if countryName is empty, it returns true for everyone)
+    const matchesName = country.name.common
+      .toLowerCase()
+      .includes(countryName.toLowerCase().trim());
+
+    // 2. Check if the region matches (if region is empty, it returns true for everyone)
+    const matchesRegion = region === "" || country.region === region;
+
+    // Only return the country if it passes BOTH tests
+    return matchesName && matchesRegion;
+  });
+}, [countryName, region, countries]); // Make sure 'region' is in the dependency array!
+
+
+  
   useEffect(() => {
     // Call your async function here
     const loadData = async () => {
@@ -53,7 +85,7 @@ function AllCountries() {
   // Use 'return' before the .map so the JSX actually renders
   return (
     <>
-      {countries.map((country) => (
+      {filteredData.map((country) => (
         <Country
           id={country.cca3}
           capital={country.capital[0]}
@@ -72,7 +104,7 @@ function Country({ flag, name, population, region, capital, id }) {
   return (
     <Link to={`/country/${id}`}>
     <div className="overflow-hidden w-64 h-80 bg-white rounded-[5px] shadow-[0px_0px_7px_2px_rgba(0,0,0,0.03)]">
-      <img className="pb-6" src={flag} alt="" />
+      <img className="w-[256px] h-44.25 cover pb-6" src={flag} alt="" />
       <div className="px-6 ">
         <h2
           className="text-neutral-900
@@ -90,7 +122,7 @@ text-sm
 font-semibold
 leading-4"
           >
-            Population: <span className="font-light">{population}</span>
+            Population: <span className="font-light">{population.toLocaleString()}</span>
           </p>
 
           <p

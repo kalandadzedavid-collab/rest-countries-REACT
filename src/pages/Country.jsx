@@ -24,6 +24,19 @@ const Country = () => {
       ? Object.values(country.languages).join(", ")
       : "None";
 
+     const currency = country.currencies 
+  ? Object.values(country.currencies)[0] 
+  : "N/A";
+
+  const currencyName = currency.name
+  const currencySymbol = currency.symbol
+
+  console.log(currencyName)
+
+  const borders = country.borders
+  console.log(borders)
+      
+
     return (
       <CountryCard
         tld={country.tld}
@@ -35,6 +48,9 @@ const Country = () => {
         native={country?.name?.nativeName?.eng?.common}
         name={country?.name?.common}
         flag={country?.flags?.svg}
+        currencyName= {currencyName}
+        currencySymbol={currencySymbol}
+        borders={borders}
       ></CountryCard>
     );
   }
@@ -85,6 +101,9 @@ function CountryCard({
   capital,
   languages,
   tld,
+  currencyName,
+  currencySymbol,
+  borders
 }) {
   return (
     <div className="w-full flex flex-col pt-16">
@@ -121,7 +140,7 @@ font-extrabold mb-4"
           Top Level Domain: <span className="font-light">{tld}</span>
         </p>
         <p>
-          Currencies: <span className="font-light">0</span>
+          Currencies: <span className="font-light">{currencyName}: {currencySymbol}</span>
         </p>
         <p>
           Languages: <span className="font-light">{languages}</span>
@@ -137,14 +156,17 @@ font-semibold leading-6 mb-4"
           Border Countries:
         </h4>
 
-        <div>
-          <button
+        <div className="flex gap-2 flex-wrap">
+          {borders && borders.map((item) => {
+            return <button key={crypto.randomUUID()}
             className=" w-24 h-7 bg-white rounded-sm shadow-[0px_0px_4px_1px_rgba(0,0,0,0.10)] text-neutral-900
 text-xs
 font-light"
           >
-            France
+            {item}
           </button>
+          })}
+          
         </div>
       </div>
     </div>
